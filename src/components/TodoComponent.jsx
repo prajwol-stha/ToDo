@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import { COLORS } from '../constants'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Button from '../components/Button'
-import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { useSelector } from 'react-redux'
+import { useNavigation } from '@react-navigation/native'
 
 const TodoComponent = ({ 
     item, 
@@ -13,7 +14,22 @@ const TodoComponent = ({
     handleDeleteTodo, 
     updateTodoDetails 
   }) => {
+    const navigation=useNavigation();
+    const searchedItem = useSelector(state => state.todos.todos.find(todo => todo.id === item.id));
+    const [tempDetails, setTempDetails] = useState(item.details || '');
+
     const isExpanded = details[item.id] || false;
+
+    function getDetails(item){
+        console.log('>>>>',searchedItem)
+        console.log('----',item)
+    }
+
+    function handleUpdate() {
+        if (tempDetails.trim() !== '' && tempDetails !== item.details) {
+            updateTodoDetails(item.id, tempDetails);
+        }
+    }
     
     return (
         <View style={styles.todoWrapper}>
@@ -40,7 +56,6 @@ const TodoComponent = ({
                     ]}>
                         {item.title}
                     </Text>
-                    {/* <BouncyCheckbox isChecked={item.completed} fillColor={COLORS.GREEN} innerIconStyle={{borderWidth:2}} size={20}/> */}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.deleteContainer} onPress={() => handleDeleteTodo(item)}>
                     <MaterialCommunityIcons name="delete" size={32} color={COLORS.RED}/>
@@ -49,20 +64,34 @@ const TodoComponent = ({
             
             {isExpanded && (
                 <View style={styles.detailsContainer}>
-                    <TextInput
+                    {!searchedItem.details && 
+                        <><TextInput
                         style={styles.detailsInput}
                         multiline
                         placeholder="Add details..."
                         placeholderTextColor={COLORS.M_GREY}
                         value={item.details}
-                        onChangeText={(text) => updateTodoDetails(item.id, text)}
+                        onChangeText={setTempDetails}
                     />
                     <Button
                         title={'Update'}
                         style={{width:'25%', alignSelf:'center'}}
-                        disabled={!item.details}
-                        onPress={() => updateTodoDetails(item.id, item.details)}
+                        disabled={tempDetails.trim() === '' || tempDetails === item.details}
+                        onPress={handleUpdate}
                     />
+                    </>}
+                    
+                            {searchedItem.details && <>
+                            <TouchableOpacity onPress={()=>navigation.navigate('Details',{todoDetails:searchedItem})}>
+
+                            <Text>{searchedItem.details}</Text>
+                            </TouchableOpacity>
+                            <Button
+                                title="View Details"
+                                style={{width:'34%',alignSelf:'center'}}
+                                onPress={()=>navigation.navigate('Details',{todoDetails:searchedItem})}
+                            />
+                            </>}
                 </View>
             )}
         </View>

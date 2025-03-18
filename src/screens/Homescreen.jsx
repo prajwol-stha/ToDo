@@ -1,46 +1,50 @@
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
-import { COLORS } from '../constants'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Button from '../components/Button'
-import TodoComponent from '../components/TodoComponent'
+import React, { useEffect, useState } from 'react'
+import { COLORS } from '../constants.js'
+import Button from '../components/Button.jsx'
+import TodoComponent from '../components/TodoComponent.jsx'
+import { useDispatch,useSelector } from 'react-redux'
+import { addTodo,deleteTodo,toggleTodo,updateTodo } from '../redux/features/todo/todoSlice.js'
 
-const Homepage = () => {
-    const [todos, setTodos] = useState([]);
+const Homescreen = () => {
+    const dispatch=useDispatch();
+    // const [todos, setTodos] = useState([]);
     const [title, setTitle] = useState('');
     const [details, setDetails] = useState({});
     const [counter, setCounter] = useState(1);
+
+    const todos = useSelector(state => state.todos.todos);
+
     
     function handleAddTodo() {
         if (title.trim() === '') return;
         
-        const newTodo = {
-            id: counter, 
-            title: title,
-            completed: false,
-            details: '',
-        };
-        
-        setTodos([...todos, newTodo]);
+        // const newTodo = {
+        //     id: counter, 
+        //     title: title,
+        //     completed: false,
+        //     details: '',
+        // };
+        dispatch(addTodo(title));
+        // setTodos([...todos, newTodo]);
         setTitle('');
-        setCounter(counter + 1);
+        // setCounter(counter + 1);
     }
     
     function handleDeleteTodo(item) {
         console.log('Deleting', item.id);
-        setTodos(todos.filter(todo => todo.id !== item.id));
+        // setTodos(todos.filter(todo => todo.id !== item.id));
+        dispatch(deleteTodo(item.id))
     }
     
     function handleTodoPress(item) {
         console.log('Pressed', item.id);
-        setTodos(todos.map(todo => 
-            todo.id === item.id ? { ...todo, completed: !todo.completed } : todo
-        ));
+        dispatch(toggleTodo(item.id))
     }
     
   function handleExpand(id) {
         if (id === undefined) {
-            console.error('Cannot toggle todo.');
+            console.error('Cannot expand todo.');
             return;
         }
         
@@ -53,18 +57,27 @@ const Homepage = () => {
         }));
     }
 
-    function updateTodoDetails(id, details) {
-        if (id === undefined) {
-            console.error('No todo found');
-            return;
+    // function updateTodoDetails(id, details) {
+    //     if (id === undefined) {
+    //         console.error('No todo found');
+    //         return;
+    //     }
+        
+    //     // setTodos(todos.map(todo => 
+    //     //     todo.id === id ? { ...todo, details } : todo
+    //     // ));
+    //     dispatch(updateTodo({ id, details }));
+    //     console.log(`Details updated for todo ${id}.`,details);
+    // }
+
+    function updateTodoDetails(id, newDetails) {
+        const currentTodo = todos.find(todo => todo.id === id);
+        if (currentTodo && newDetails.trim() !== '' && currentTodo.details !== newDetails) {
+            dispatch(updateTodo({ id, details: newDetails }));
+            console.log(`Details updated for todo ${id}:`, newDetails);
         }
-        
-        setTodos(todos.map(todo => 
-            todo.id === id ? { ...todo, details } : todo
-        ));
-        
-        console.log(`Details updated for todo ${id}.`);
     }
+    
 
     return (
         <View style={styles.container}>
@@ -117,7 +130,7 @@ const Homepage = () => {
     )
 }
 
-export default Homepage
+export default Homescreen
 
 const styles = StyleSheet.create({
     container:{
