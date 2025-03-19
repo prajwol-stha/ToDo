@@ -1,14 +1,14 @@
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { FlatList, KeyboardAvoidingView, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { COLORS } from '../constants.js'
 import Button from '../components/Button.jsx'
 import TodoComponent from '../components/TodoComponent.jsx'
 import { useDispatch,useSelector } from 'react-redux'
 import { addTodo,deleteTodo,toggleTodo,updateTodo } from '../redux/features/todo/todoSlice.js'
+import { useHeaderHeight } from '@react-navigation/elements'
 
 const Homescreen = () => {
     const dispatch=useDispatch();
-    // const [todos, setTodos] = useState([]);
     const [title, setTitle] = useState('');
     const [details, setDetails] = useState({});
     const [counter, setCounter] = useState(1);
@@ -18,22 +18,12 @@ const Homescreen = () => {
     
     function handleAddTodo() {
         if (title.trim() === '') return;
-        
-        // const newTodo = {
-        //     id: counter, 
-        //     title: title,
-        //     completed: false,
-        //     details: '',
-        // };
         dispatch(addTodo(title));
-        // setTodos([...todos, newTodo]);
         setTitle('');
-        // setCounter(counter + 1);
     }
     
     function handleDeleteTodo(item) {
         console.log('Deleting', item.id);
-        // setTodos(todos.filter(todo => todo.id !== item.id));
         dispatch(deleteTodo(item.id))
     }
     
@@ -57,19 +47,6 @@ const Homescreen = () => {
         }));
     }
 
-    // function updateTodoDetails(id, details) {
-    //     if (id === undefined) {
-    //         console.error('No todo found');
-    //         return;
-    //     }
-        
-    //     // setTodos(todos.map(todo => 
-    //     //     todo.id === id ? { ...todo, details } : todo
-    //     // ));
-    //     dispatch(updateTodo({ id, details }));
-    //     console.log(`Details updated for todo ${id}.`,details);
-    // }
-
     function updateTodoDetails(id, newDetails) {
         const currentTodo = todos.find(todo => todo.id === id);
         if (currentTodo && newDetails.trim() !== '' && currentTodo.details !== newDetails) {
@@ -80,7 +57,7 @@ const Homescreen = () => {
     
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.listContainer}>
                 <FlatList
                     data={todos}
@@ -126,7 +103,7 @@ const Homescreen = () => {
                     style={{height:48}}
                 />
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 
@@ -201,7 +178,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginTop: 16,
-        paddingBottom: 4,
+        borderRadius:8,
     },
     input: {
         flex: 1,
